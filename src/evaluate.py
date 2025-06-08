@@ -17,3 +17,4 @@ def accuracy(model: torch.nn.Module, df, label_col: str) -> float:
             correct += (pred == y).sum().item()
             total += y.size(0)
     return correct / total if total else 0.0
+
