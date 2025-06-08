@@ -1,19 +1,15 @@
-from typing import Tuple, List
-
-from src.dataset import load_dummy_dataset, train_test_split
-from src.model import LogisticRegression
-from src.evaluate import compute_accuracy
+from src import data_processing, scheduler, train, evaluate
 
 
-def train_and_evaluate() -> float:
-    X, y = load_dummy_dataset()
-    (X_train, y_train), (X_test, y_test) = train_test_split(X, y, seed=42)
-    model = LogisticRegression(n_features=len(X_train[0]))
-    model.fit(X_train, y_train, epochs=200, lr=0.5)
-    accuracy = compute_accuracy(model, (X_test, y_test))
-    return accuracy
+def main():
+    scheduler.init_cluster()
+    print('Resources:', scheduler.get_cluster_resources())
+    df = data_processing.load_dataset('data/financial.csv')
+    parts = data_processing.vertical_split(df, [['age', 'income'], ['credit_score']], 'label')
+    model, merged = train.train(parts, 'label', epochs=1)
+    acc = evaluate.accuracy(model, merged, 'label')
+    print('Accuracy:', acc)
 
 
-if __name__ == "__main__":
-    acc = train_and_evaluate()
-    print(f"Test Accuracy: {acc * 100:.2f}%")
+if __name__ == '__main__':
+    main()

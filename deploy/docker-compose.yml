@@ -1,0 +1,14 @@
+version: '3'
+services:
+  head:
+    build: .
+    environment:
+      - RAY_HEAD_IP=head
+    command: ["ray", "start", "--head", "--port=6379"]
+    ports:
+      - "8265:8265"
+  worker:
+    build: .
+    depends_on:
+      - head
+    command: ["ray", "start", "--address", "head:6379"]
